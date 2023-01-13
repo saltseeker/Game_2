@@ -2,6 +2,15 @@ import pygame, sys, random, pygame.font, os, pygame.mixer
 
 
 
+def display_score():
+    current_time = int(pygame.time.get_ticks() / 1000) - start_time
+    score_surface = font.render(f'Score: {current_time}', True,(255, 255, 255))
+    score_rect = score_surface.get_rect(center = (1100,50))
+    screen.blit(score_surface,score_rect)
+    pygame.display.update()
+
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -25,8 +34,6 @@ class Player(pygame.sprite.Sprite):
         self.shoot_sound.play()
         return Bullet(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1],color)
 
-   
-    
     def gameover(self):
         font = pygame.font.Font(None, 80)
         text = font.render("Game Over", True, (255, 0, 0))
@@ -34,12 +41,12 @@ class Player(pygame.sprite.Sprite):
         screen.blit(text, text_rect)
 
         font_continue = pygame.font.Font(None, 50)
-        text_continue = font_continue.render("Left mouse button to continue", True, (255, 255, 255))
+        text_continue = font_continue.render("SPACE to continue", True, (255, 255, 255))
         text_continue_rect = text_continue.get_rect(center=(screen_width/2, screen_height/2 + 40))
         screen.blit(text_continue, text_continue_rect)
 
         font_exit = pygame.font.Font(None, 50)
-        text_exit = font_exit.render("To exit press right mouse button", True, (255, 255, 255))
+        text_exit = font_exit.render(" X  To exit ", True, (255, 255, 255))
         text_exit_rect = text_exit.get_rect(center=(screen_width/2, screen_height/2 + 80))
         screen.blit(text_exit, text_exit_rect)
 
@@ -47,10 +54,10 @@ class Player(pygame.sprite.Sprite):
 
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:  
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:  
                         return
-                    elif event.button == 3:  
+                    elif event.key == pygame.K_x:  
                         pygame.quit()
                         sys.exit()
 
@@ -98,14 +105,9 @@ class Projectile(pygame.sprite.Sprite):
             self.kill()
             player.gameover()
             pygame.display.update()
-
+       
     
           
-
-
-
-
-
 #Basic pygame setup
 
 pygame.init()
@@ -116,6 +118,8 @@ screen = pygame.display.set_mode((screen_height,screen_width))
 pygame.mouse.set_visible(False)
 font = pygame.font.Font(None, 50)
 game_active = True
+start_time = 0
+
 
 projectiles = pygame.sprite.Group()
 projectile = Projectile()
@@ -151,21 +155,33 @@ while game_active:
         player = Player()
         player_group.add(player)
         player.gameover()
+        start_time = int(pygame.time.get_ticks() / 1000)
+   
 
     # check if it's time to spawn a new projectile
     if pygame.time.get_ticks() - spawn_time >= 100:
         projectile_group.add(Projectile())
         spawn_time = pygame.time.get_ticks()
     projectile_group.update()
+    # Checking if the bullet and projectile collide. If they do, it will remove the projectile and
+    # bullet.
     for projectile in pygame.sprite.groupcollide(projectile_group, bullet_group, True, True):
         pass
 
     
+    display_score()
     screen.blit(background, (0, 0))
     bullet_group.draw(screen)
     projectile_group.draw(screen)
     player_group.draw(screen)
     player_group.update()
     bullet_group.update()
+    projectiles.update()
     pygame.display.flip()
     clock.tick(120)
+
+
+
+ 
+
+
