@@ -125,6 +125,7 @@ projectiles = pygame.sprite.Group()
 projectile = Projectile()
 projectiles.add(projectile)
 
+
 player = Player()
 player_group = pygame.sprite.Group()
 player_group.add(player)
@@ -151,13 +152,12 @@ while game_active:
             bullet = player.shooting_bullet()
             bullet_group.add(bullet)
     if not player.alive():
+        projectile_group.empty()
         player_group.empty()
         player = Player()
         player_group.add(player)
         player.gameover()
         start_time = int(pygame.time.get_ticks() / 1000)
-   
-
     # check if it's time to spawn a new projectile
     if pygame.time.get_ticks() - spawn_time >= 100:
         projectile_group.add(Projectile())
@@ -179,6 +179,12 @@ while game_active:
     projectiles.update()
     pygame.display.flip()
     clock.tick(120)
+
+
+
+ 
+
+
 
 
 
