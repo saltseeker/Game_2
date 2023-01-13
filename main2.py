@@ -2,12 +2,21 @@ import pygame, sys, random, pygame.font, os, pygame.mixer
 
 
 
-def display_score():
-    current_time = int(pygame.time.get_ticks() / 1000) - start_time
-    score_surface = font.render(f'Score: {current_time}', True,(255, 255, 255))
-    score_rect = score_surface.get_rect(center = (1100,50))
-    screen.blit(score_surface,score_rect)
-    pygame.display.update()
+class Score:
+    def __init__(self):
+        self.screen = screen
+        self.start_time = start_time
+        self.font = pygame.font.Font(None, 50)
+
+    def update(self):
+        current_time = int(pygame.time.get_ticks() / 1000) - self.start_time
+        score_surface = self.font.render(f'Score: {current_time}', True,(255, 255, 255))
+        score_rect = score_surface.get_rect(center = (1100,50))
+        self.screen.blit(score_surface,score_rect)
+        pygame.display.update()
+
+    def reset(self):
+        self.start_time = int(pygame.time.get_ticks() / 1000)
 
 
 
@@ -51,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         screen.blit(text_exit, text_exit_rect)
 
         pygame.display.update() 
-
+        score.reset()
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -119,7 +128,7 @@ pygame.mouse.set_visible(False)
 font = pygame.font.Font(None, 50)
 game_active = True
 start_time = 0
-
+score = Score()
 
 projectiles = pygame.sprite.Group()
 projectile = Projectile()
@@ -148,6 +157,7 @@ while game_active:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        score.update()   
         if event.type == pygame.MOUSEBUTTONDOWN:
             bullet = player.shooting_bullet()
             bullet_group.add(bullet)
@@ -157,7 +167,7 @@ while game_active:
         player = Player()
         player_group.add(player)
         player.gameover()
-        start_time = int(pygame.time.get_ticks() / 1000)
+        
     # check if it's time to spawn a new projectile
     if pygame.time.get_ticks() - spawn_time >= 100:
         projectile_group.add(Projectile())
@@ -169,7 +179,7 @@ while game_active:
         pass
 
     
-    display_score()
+    #display_score()
     screen.blit(background, (0, 0))
     bullet_group.draw(screen)
     projectile_group.draw(screen)
@@ -179,6 +189,11 @@ while game_active:
     projectiles.update()
     pygame.display.flip()
     clock.tick(120)
+
+
+ 
+
+
 
 
 
