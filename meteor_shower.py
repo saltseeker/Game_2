@@ -219,6 +219,7 @@ while game_active:
     
     # Drawing the background, bullets, projectiles, player, and updating the bullets, projectiles, and player
     screen.blit(background, (0, 0))
+    screen.blit(start_menu.version_text, start_menu.version_text_rect)
     bullet_group.draw(screen)
     projectile_group.draw(screen)
     player_group.draw(screen)
