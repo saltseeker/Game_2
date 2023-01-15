@@ -4,17 +4,23 @@ import pygame, sys, random, pygame.font, os, pygame.mixer
 class StartMenu:
     def __init__(self):
         self.background = pygame.image.load("images/bg/space1.png").convert()
-        self.enter_button = pygame.image.load("images/enter.png").convert_alpha()
+        self.enter_button = pygame.image.load("images/bg/enter.png").convert_alpha()
         self.button_rect = self.enter_button.get_rect(center=(screen_width/2, screen_height/2+50))
         self.font = pygame.font.Font("images/font/Pixeltype.ttf", 110)
         self.text = self.font.render("Meteor Shower", True, (255, 222, 222))
         self.text_rect = self.text.get_rect(center=(screen_width/2, screen_height/2-100))
+        self.version_font = pygame.font.Font("images/font/Pixeltype.ttf", 40)
+        self.version_text = self.version_font.render("Alpha Ver. 0.32312323", True, (255, 255, 255))
+        self.version_text_rect = self.version_text.get_rect()
+        self.version_text_rect.bottomright = (screen_width, screen_height)
 
     def display(self):
         screen.blit(self.background, (0, 0))
         screen.blit(self.text, self.text_rect)
         screen.blit(self.enter_button, self.button_rect)
+        screen.blit(self.version_text, self.version_text_rect)
         pygame.display.update()
+
 
     def wait_for_input(self):
         while True:
@@ -40,9 +46,6 @@ class Score:
         self.start_time = int(pygame.time.get_ticks() / 1000)
 
     
-
-
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -102,19 +105,15 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.image.load(f"images/laser/{self.color}laser.png").convert_alpha()    
         self.image = pygame.transform.scale(self.image, (int(self.image.get_width()*0.2), int(self.image.get_height()*0.2)))
         self.rect = self.image.get_rect(center = (pos_x,pos_y))
-        self.explode_sound = pygame.mixer.Sound("sounds/ship.flac")
         
-
-
+        
     def update(self):
+        # Moving the bullet to the right.
         self.rect.x += 22
         #Destroys the bullet within x range
         if self.rect.x >= screen_width - 199:                                       
             self.kill()
-        projectile_hit_list = pygame.sprite.spritecollide(self, projectiles, True)
-        if len(projectile_hit_list) > 0:
-            self.explode_sound.play()
-        pygame.display.update()
+        
 
 class Projectile(pygame.sprite.Sprite):
     def __init__(self):
@@ -122,11 +121,12 @@ class Projectile(pygame.sprite.Sprite):
         self.image_files = ["1.png", "2.png", "3.png","4.png","5.png","6.png","7.png"]
         image_path = os.path.join("images/projectile", self.image_files[random.randint(0, len(self.image_files)-1)])
         self.image = pygame.image.load(image_path).convert_alpha()
+        self.explosion_image = pygame.image.load("images/ship/explode1.png").convert_alpha()
         self.rect = self.image.get_rect(right = screen_width + random.randint(0, 400),centery=random.randint(0, screen_height))
         # randomly set speed
         self.speed = random.randint(4, 10)
         self.explode_sound = pygame.mixer.Sound("sounds/ship.flac")
-        
+        self.is_exploded = False
     
     
     def update(self):
@@ -134,10 +134,13 @@ class Projectile(pygame.sprite.Sprite):
         if pygame.sprite.collide_mask(self, player):
             player.kill()
             self.explode_sound.play()
-            self.kill()
-            player.gameover()
+            self.is_exploded = True
             pygame.display.update()
-       
+        if self.is_exploded:
+            self.image = self.explosion_image
+            
+        
+            
     
           
 #Basic pygame setup
@@ -155,9 +158,12 @@ score = Score()
 
 
 
+
+# Creating groups.
 start_menu = StartMenu()
 start_menu.display()
 start_menu.wait_for_input()
+
 
 projectiles = pygame.sprite.Group()
 projectile = Projectile()
@@ -180,9 +186,6 @@ for i in range(9):
     projectile_group.add(Projectile())
 
 #Game loop
-
-
-
 while game_active:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -195,7 +198,6 @@ while game_active:
     if not player.alive():
         projectile_group.empty()
         player_group.empty()
-        player = Player()
         player_group.add(player)
         player.gameover()
     # check if it's time to spawn a new projectile
@@ -209,7 +211,8 @@ while game_active:
         pass
 
     
-    #display_score()
+    
+    # Drawing the background, bullets, projectiles, player, and updating the bullets, projectiles, and player
     screen.blit(background, (0, 0))
     bullet_group.draw(screen)
     projectile_group.draw(screen)
@@ -219,15 +222,4 @@ while game_active:
     projectiles.update()
     pygame.display.flip()
     clock.tick(120)
-
-
-
- 
-
-
-
-
-
- 
-
 
