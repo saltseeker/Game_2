@@ -64,6 +64,7 @@ class Player(pygame.sprite.Sprite):
        
     
     def shooting_bullet(self):
+        # Creating a list of colors and then cycling through them.
         color = self.laser_colors[self.laser_color_counter]
         self.laser_color_counter = (self.laser_color_counter + 1) % len(self.laser_colors)
         self.shoot_sound.play()
@@ -103,6 +104,7 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__()
         self.color = color
         self.image = pygame.image.load(f"images/laser/{self.color}laser.png").convert_alpha()    
+        # Scaling the image to 20% of its original size.
         self.image = pygame.transform.scale(self.image, (int(self.image.get_width()*0.2), int(self.image.get_height()*0.2)))
         self.rect = self.image.get_rect(center = (pos_x,pos_y))
         
@@ -115,6 +117,7 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
         
 
+
 class Projectile(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -122,6 +125,7 @@ class Projectile(pygame.sprite.Sprite):
         image_path = os.path.join("images/projectile", self.image_files[random.randint(0, len(self.image_files)-1)])
         self.image = pygame.image.load(image_path).convert_alpha()
         self.explosion_image = pygame.image.load("images/ship/explode1.png").convert_alpha()
+        # Setting the position of the projectile.
         self.rect = self.image.get_rect(right = screen_width + random.randint(0, 400),centery=random.randint(0, screen_height))
         # randomly set speed
         self.speed = random.randint(4, 10)
@@ -129,6 +133,7 @@ class Projectile(pygame.sprite.Sprite):
         self.is_exploded = False
     
     
+    #If the player collides with the enemy, the player dies and  explodes
     def update(self):
         self.rect.x -= self.speed
         if pygame.sprite.collide_mask(self, player):
@@ -155,7 +160,7 @@ pygame.mouse.set_visible(False)
 game_active = True
 start_time = 0
 score = Score()
-
+background = pygame.image.load("images/bg/space1.png").convert()
 
 
 
@@ -176,7 +181,7 @@ player_group.add(player)
 
 bullet_group = pygame.sprite.Group()
 
-background = pygame.image.load("images/bg/space1.png").convert()
+
 
 
 # add a spawn time for projectiles
