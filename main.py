@@ -1,6 +1,22 @@
 import pygame, sys, random, pygame.font, os, pygame.mixer
 
 
+class StartMenu:
+    def __init__(self):
+        self.font = pygame.font.Font(None, 80)
+        self.text = self.font.render("Press Enter to start", True, (255, 255, 255))
+        self.text_rect = self.text.get_rect(center=(screen_width/2, screen_height/2))
+
+    def display(self):
+        screen.blit(self.text, self.text_rect)
+        pygame.display.update()
+
+    def wait_for_input(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        return
 
 class Score:
     def __init__(self):
@@ -18,6 +34,9 @@ class Score:
     def reset(self):
         self.start_time = int(pygame.time.get_ticks() / 1000)
 
+    
+
+
 
 
 class Player(pygame.sprite.Sprite):
@@ -29,10 +48,13 @@ class Player(pygame.sprite.Sprite):
         self.laser_color_counter = 0
         pygame.mixer.init()
         self.shoot_sound = pygame.mixer.Sound("sounds/shoot.ogg")
+
+
         
 
     def update(self):
         self.rect.center = pygame.mouse.get_pos()
+        pygame.display.update()
        
         
       
@@ -91,7 +113,7 @@ class Bullet(pygame.sprite.Sprite):
         projectile_hit_list = pygame.sprite.spritecollide(self, projectiles, True)
         if len(projectile_hit_list) > 0:
             self.explode_sound.play()
-        
+        pygame.display.update()
 
 class Projectile(pygame.sprite.Sprite):
     def __init__(self):
@@ -108,7 +130,7 @@ class Projectile(pygame.sprite.Sprite):
     
     def update(self):
         self.rect.x -= self.speed
-        if pygame.sprite.collide_rect(self, player):
+        if pygame.sprite.collide_mask(self, player):
             player.kill()
             self.explode_sound.play()
             self.kill()
@@ -129,6 +151,10 @@ font = pygame.font.Font(None, 50)
 game_active = True
 start_time = 0
 score = Score()
+
+start_menu = StartMenu()
+start_menu.display()
+start_menu.wait_for_input()
 
 projectiles = pygame.sprite.Group()
 projectile = Projectile()
@@ -152,6 +178,8 @@ for i in range(9):
 
 #Game loop
 
+
+
 while game_active:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -167,7 +195,6 @@ while game_active:
         player = Player()
         player_group.add(player)
         player.gameover()
-        
     # check if it's time to spawn a new projectile
     if pygame.time.get_ticks() - spawn_time >= 100:
         projectile_group.add(Projectile())
