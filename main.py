@@ -3,12 +3,17 @@ import pygame, sys, random, pygame.font, os, pygame.mixer
 
 class StartMenu:
     def __init__(self):
-        self.font = pygame.font.Font(None, 80)
-        self.text = self.font.render("Press Enter to start", True, (255, 255, 255))
-        self.text_rect = self.text.get_rect(center=(screen_width/2, screen_height/2))
+        self.background = pygame.image.load("images/bg/space1.png").convert()
+        self.enter_button = pygame.image.load("images/enter.png").convert_alpha()
+        self.button_rect = self.enter_button.get_rect(center=(screen_width/2, screen_height/2+50))
+        self.font = pygame.font.Font("images/font/Pixeltype.ttf", 110)
+        self.text = self.font.render("Meteor Shower", True, (255, 222, 222))
+        self.text_rect = self.text.get_rect(center=(screen_width/2, screen_height/2-100))
 
     def display(self):
+        screen.blit(self.background, (0, 0))
         screen.blit(self.text, self.text_rect)
+        screen.blit(self.enter_button, self.button_rect)
         pygame.display.update()
 
     def wait_for_input(self):
@@ -22,7 +27,7 @@ class Score:
     def __init__(self):
         self.screen = screen
         self.start_time = start_time
-        self.font = pygame.font.Font(None, 50)
+        self.font = pygame.font.Font("images/font/Pixeltype.ttf", 50)
 
     def update(self):
         current_time = int(pygame.time.get_ticks() / 1000) - self.start_time
@@ -50,15 +55,11 @@ class Player(pygame.sprite.Sprite):
         self.shoot_sound = pygame.mixer.Sound("sounds/shoot.ogg")
 
 
-        
-
     def update(self):
         self.rect.center = pygame.mouse.get_pos()
         pygame.display.update()
        
-        
-      
-        
+    
     def shooting_bullet(self):
         color = self.laser_colors[self.laser_color_counter]
         self.laser_color_counter = (self.laser_color_counter + 1) % len(self.laser_colors)
@@ -66,17 +67,17 @@ class Player(pygame.sprite.Sprite):
         return Bullet(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1],color)
 
     def gameover(self):
-        font = pygame.font.Font(None, 80)
+        font = pygame.font.Font("images/font/Pixeltype.ttf", 50)
         text = font.render("Game Over", True, (255, 0, 0))
         text_rect = text.get_rect(center=(screen_width/2, screen_height/2))
         screen.blit(text, text_rect)
 
-        font_continue = pygame.font.Font(None, 50)
+        font_continue = pygame.font.Font("images/font/Pixeltype.ttf", 50)
         text_continue = font_continue.render("SPACE to continue", True, (255, 255, 255))
         text_continue_rect = text_continue.get_rect(center=(screen_width/2, screen_height/2 + 40))
         screen.blit(text_continue, text_continue_rect)
 
-        font_exit = pygame.font.Font(None, 50)
+        font_exit = pygame.font.Font("images/font/Pixeltype.ttf", 50)
         text_exit = font_exit.render(" X  To exit ", True, (255, 255, 255))
         text_exit_rect = text_exit.get_rect(center=(screen_width/2, screen_height/2 + 80))
         screen.blit(text_exit, text_exit_rect)
@@ -144,13 +145,15 @@ class Projectile(pygame.sprite.Sprite):
 pygame.init()
 pygame.display.set_caption('Meteor Shower')
 clock = pygame.time.Clock()
-screen_width, screen_height = 1100, 1200
-screen = pygame.display.set_mode((screen_height,screen_width))
+screen_width = 1200
+screen_height = 800
+screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.mouse.set_visible(False)
-font = pygame.font.Font(None, 50)
 game_active = True
 start_time = 0
 score = Score()
+
+
 
 start_menu = StartMenu()
 start_menu.display()
@@ -167,7 +170,7 @@ player_group.add(player)
 
 bullet_group = pygame.sprite.Group()
 
-background = pygame.image.load("images/bg/space.png").convert()
+background = pygame.image.load("images/bg/space1.png").convert()
 
 
 # add a spawn time for projectiles
